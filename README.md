@@ -18,6 +18,7 @@ The goals / steps of this project are the following:
 ### Run the pipeline:
 ```bash
 chmod +x shell_script.sh
-./shell_script.sh --video "challenge_video.mp4" "output.mp4"
-./shell_script.sh --photo "test_images/challenge_video_frame_1.jpg" "output.jpg"
+# 1 For debug mode, 0 for normal mode
+./shell_script.sh --video "challenge_video.mp4" "output.mp4" 1
+./shell_script.sh --photo "test_images/challenge_video_frame_1.jpg" "output.jpg" 1
 ```

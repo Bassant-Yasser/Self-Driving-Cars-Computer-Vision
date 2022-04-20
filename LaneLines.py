@@ -192,7 +192,7 @@ class LaneLines:
 
         return output, output2
     
-    def plot(self, out_img, thresholded_img, green_lanes, green_rectangles):
+    def plot(self, out_img, thresholded_img, green_lanes, green_rectangles, debug_mode):
        np.set_printoptions(precision=6, suppress=True)
        lR, rR, pos = self.measure_curvature()
 
@@ -212,32 +212,27 @@ class LaneLines:
        cv2.putText(out_img, curvature_msg, org=(10, 80), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
        
        # vehicle position away from the center of the lane
-       cv2.putText(
-           out_img,
-           "Vehicle is {:.2f} m away from center".format(pos),
-           org=(10, 150),
-           fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-           fontScale=0.66,
-           color=(255, 255, 255),
-           thickness=2)
+       cv2.putText(out_img, "Vehicle is {:.2f} m away from center".format(pos), org=(10, 150), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.66, color=(255, 255, 255), thickness=2)
+       
+       if debug_mode == 1:
+            h, w = out_img.shape[:2]
+            th_ratio = 0.2
+            th_h, th_w = int(th_ratio * h), int(th_ratio * w)
+            off_x, off_y = 20, 15
+
+            # add binary image 
+            thresholded_img_temp = cv2.resize(thresholded_img, dsize=(th_w, th_h))
+            thresholded_img_temp = np.dstack([thresholded_img_temp, thresholded_img_temp, thresholded_img_temp])
+            out_img[off_y:th_h+off_y, w-(th_w+off_x):w-off_x, :] = thresholded_img_temp
+
+            # add lane-line highlighted image 
+            green_lanes_fit = cv2.resize(green_lanes, dsize=(th_w, th_h))
+            out_img[(th_h)+(2*off_y):(th_h*2)+(2*off_y), w-(th_w+off_x):w-off_x, :] = green_lanes_fit
+
+            # add green_rectangles image
+            green_rectangles_fit = cv2.resize(green_rectangles, dsize=(th_w, th_h))
+            out_img[(th_h*2)+(3*off_y):(th_h*3)+(3*off_y), w-(th_w+off_x):w-off_x, :] = green_rectangles_fit
         
-       h, w = out_img.shape[:2]
-       th_ratio = 0.2
-       th_h, th_w = int(th_ratio * h), int(th_ratio * w)
-       off_x, off_y = 20, 15
-
-       # add binary image 
-       thresholded_img_temp = cv2.resize(thresholded_img, dsize=(th_w, th_h))
-       thresholded_img_temp = np.dstack([thresholded_img_temp, thresholded_img_temp, thresholded_img_temp])
-       out_img[off_y:th_h+off_y, w-(th_w+off_x):w-off_x, :] = thresholded_img_temp
-
-       # add lane-line highlighted image 
-       green_lanes_fit = cv2.resize(green_lanes, dsize=(th_w, th_h))
-       out_img[(th_h)+(2*off_y):(th_h*2)+(2*off_y), w-(th_w+off_x):w-off_x, :] = green_lanes_fit
-
-       # add green_rectangles image
-       green_rectangles_fit = cv2.resize(green_rectangles, dsize=(th_w, th_h))
-       out_img[(th_h*2)+(3*off_y):(th_h*3)+(3*off_y), w-(th_w+off_x):w-off_x, :] = green_rectangles_fit
        return out_img
 
     
