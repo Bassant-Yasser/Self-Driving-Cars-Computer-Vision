@@ -7,7 +7,6 @@ from Thresholding import *
 from PerspectiveTransformation import *
 from LaneLines import *
 import matplotlib.pyplot as plt
-from PIL import Image
 import sys
 
 class FindLaneLines:
@@ -16,8 +15,9 @@ class FindLaneLines:
     Attributes:
         ...
     """
-    def __init__(self):
+    def __init__(self, debug_mode):
         """ Init Application"""
+        self.mode = debug_mode
         self.thresholding = Thresholding()
         self.transform = PerspectiveTransformation()
         self.lanelines = LaneLines()
@@ -29,7 +29,7 @@ class FindLaneLines:
         green_rectangles, green_lanes = self.lanelines.forward(thresholded_img)  
         img = self.transform.backward(green_lanes)
         out_img = cv2.addWeighted(out_img, 1, img, 0.6, 0)
-        out_img = self.lanelines.plot(out_img, thresholded_img, green_lanes, green_rectangles)
+        out_img = self.lanelines.plot(out_img, thresholded_img, green_lanes, green_rectangles, self.mode)
         return out_img
 
     def process_image(self, input_path, output_path):
@@ -44,13 +44,14 @@ class FindLaneLines:
 
 def main():
     args = sys.argv[1:]
-    if (len(sys.argv) != 4):
+    if (len(sys.argv) != 5):
         sys.exit(2)
 
     input = args[1]
     output = args[2]
+    debug_mode = int(args[3])
 
-    findLaneLines = FindLaneLines()
+    findLaneLines = FindLaneLines(debug_mode)
     if args[0] == '--video':
         findLaneLines.process_video(input, output)
     else:
